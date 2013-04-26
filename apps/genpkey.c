@@ -268,11 +268,13 @@ int MAIN(int argc, char **argv)
 	else if (outformat == FORMAT_PEM) 
 		rv = PEM_write_bio_PrivateKey(out, pkey, cipher, NULL, 0,
 								NULL, pass);
+	else if (outformat == FORMAT_JWK)
+		rv = JWK_write_bio_PrivateKey(out, pkey, cipher, pass);
 	else if (outformat == FORMAT_ASN1)
 		rv = i2d_PrivateKey_bio(out, pkey);
 	else
 		{
-		BIO_printf(bio_err, "Bad format specified for key\n");
+		BIO_printf(bio_err, "genpkey: Bad format specified for key\n");
 		goto end;
 		}
 

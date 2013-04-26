@@ -94,7 +94,7 @@ int MAIN(int argc, char **argv)
 	char rsa_mode = RSA_VERIFY, key_type = KEY_PRIVKEY;
 	int keyform = FORMAT_PEM;
 	char need_priv = 0, badarg = 0, rev = 0;
-	char hexdump = 0, asn1parse = 0;
+	char hexdump = 0, jws = 0, asn1parse = 0;
 	X509 *x;
 	EVP_PKEY *pkey = NULL;
 	RSA *rsa = NULL;
@@ -156,6 +156,7 @@ int MAIN(int argc, char **argv)
 			key_type = KEY_CERT;
 		} 
 		else if(!strcmp(*argv, "-asn1parse")) asn1parse = 1;
+		else if(!strcmp(*argv, "-jws")) jws = 1;
 		else if(!strcmp(*argv, "-hexdump")) hexdump = 1;
 		else if(!strcmp(*argv, "-raw")) pad = RSA_NO_PADDING;
 		else if(!strcmp(*argv, "-oaep")) pad = RSA_PKCS1_OAEP_PADDING;
@@ -305,6 +306,15 @@ int MAIN(int argc, char **argv)
 		if(!ASN1_parse_dump(out, rsa_out, rsa_outlen, 1, -1)) {
 			ERR_print_errors(bio_err);
 		}
+	} else if(jws) {
+		if (rsa_mode = RSA_SIGN) {
+			if(!ASN1_parse_signature_dump_jws(out, rsa_out, rsa_outlen, 1, -1)) {
+				ERR_print_errors(bio_err);
+			}
+		} else {
+			BIO_printf(bio_err, "use -sign -jws");
+			goto end;
+		}
 	} else if(hexdump) BIO_dump(out, (char *)rsa_out, rsa_outlen);
 	else BIO_write(out, rsa_out, rsa_outlen);
 	end:
@@ -335,6 +345,8 @@ static void usage()
 	BIO_printf(bio_err, "-encrypt        encrypt with public key\n");
 	BIO_printf(bio_err, "-decrypt        decrypt with private key\n");
 	BIO_printf(bio_err, "-hexdump        hex dump output\n");
+	BIO_printf(bio_err, "-asn1parse      analyze something asn.1 encoded and output\n");
+	BIO_printf(bio_err, "-jws            output signature as JWS\n");
 #ifndef OPENSSL_NO_ENGINE
 	BIO_printf(bio_err, "-engine e       use engine e, possibly a hardware device.\n");
 	BIO_printf (bio_err, "-passin arg    pass phrase source\n");

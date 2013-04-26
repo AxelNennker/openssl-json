@@ -349,6 +349,7 @@ unsigned char *next_protos_parse(unsigned short *outlen, const char *in);
 #define FORMAT_ASN1RSA	10	/* DER RSAPubicKey format */
 #define FORMAT_MSBLOB	11	/* MS Key blob format */
 #define FORMAT_PVK	12	/* MS PVK file format */
+#define FORMAT_JWK	13	/* JSON Web Key */
 
 #define EXT_COPY_NONE	0
 #define EXT_COPY_ADD	1

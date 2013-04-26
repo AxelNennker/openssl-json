@@ -77,7 +77,7 @@
 int do_fp(BIO *out, unsigned char *buf, BIO *bp, int sep, int binout,
 	  EVP_PKEY *key, unsigned char *sigin, int siglen,
 	  const char *sig_name, const char *md_name,
-	  const char *file,BIO *bmd);
+	  const char *file,BIO *bmd, int jws);
 
 static void list_md_fn(const EVP_MD *m,
 			const char *from, const char *to, void *arg)
@@ -115,6 +115,7 @@ int MAIN(int argc, char **argv)
 	int separator=0;
 	int debug=0;
 	int keyform=FORMAT_PEM;
+	int jws=0;
 	const char *outfile = NULL, *keyfile = NULL;
 	const char *sigfile = NULL, *randfile = NULL;
 	int out_bin = -1, want_pub = 0, do_verify = 0;
@@ -210,6 +211,8 @@ int MAIN(int argc, char **argv)
         		e = setup_engine(bio_err, engine, 0);
 			}
 #endif
+		else if (strcmp(*argv,"-jws") == 0)
+			jws = 1;
 		else if (strcmp(*argv,"-hex") == 0)
 			out_bin = 0;
 		else if (strcmp(*argv,"-binary") == 0)
@@ -499,7 +502,7 @@ int MAIN(int argc, char **argv)
 		{
 		BIO_set_fp(in,stdin,BIO_NOCLOSE);
 		err=do_fp(out, buf,inp,separator, out_bin, sigkey, sigbuf,
-			  siglen,NULL,NULL,"stdin",bmd);
+			  siglen,NULL,NULL,"stdin",bmd, jws);
 		}
 	else
 		{
@@ -528,7 +531,7 @@ int MAIN(int argc, char **argv)
 				}
 			else
 			r=do_fp(out,buf,inp,separator,out_bin,sigkey,sigbuf,
-				siglen,sig_name,md_name, argv[i],bmd);
+				siglen,sig_name,md_name, argv[i],bmd, jws);
 			if(r)
 			    err=r;
 			(void)BIO_reset(bmd);
@@ -558,7 +561,7 @@ end:
 int do_fp(BIO *out, unsigned char *buf, BIO *bp, int sep, int binout,
 	  EVP_PKEY *key, unsigned char *sigin, int siglen,
 	  const char *sig_name, const char *md_name,
-	  const char *file,BIO *bmd)
+	  const char *file,BIO *bmd, int jws)
 	{
 	size_t len;
 	int i;
@@ -616,7 +619,11 @@ int do_fp(BIO *out, unsigned char *buf, BIO *bp, int sep, int binout,
 			}
 		}
 
-	if(binout) BIO_write(out, buf, len);
+	if(jws && key) 
+		{
+			JWS_write_signature(out, key, sigin, siglen, sig_name, md_name, file, buf, len);
+		} 
+	else if(binout) BIO_write(out, buf, len);
 	else if (sep == 2)
 		{
 		for (i=0; i<(int)len; i++)

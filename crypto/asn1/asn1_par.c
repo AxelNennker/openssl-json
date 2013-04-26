@@ -109,6 +109,11 @@ int ASN1_parse_dump(BIO *bp, const unsigned char *pp, long len, int indent, int 
 	return(asn1_parse2(bp,&pp,len,0,0,indent,dump));
 	}
 
+int ASN1_parse_signature_dump_jws(BIO *bp, const unsigned char *pp, long len, int indent, int dump)
+	{
+	return(asn1_parse2(bp,&pp,len,0,0,indent,dump));
+	}
+
 static int asn1_parse2(BIO *bp, const unsigned char **pp, long length, int offset,
 	     int depth, int indent, int dump)
 	{

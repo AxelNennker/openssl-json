@@ -213,7 +213,7 @@ bad:
 		BIO_printf(bio_err,"%s [options] <infile >outfile\n",prog);
 		BIO_printf(bio_err,"where options are\n");
 		BIO_printf(bio_err," -inform arg     input format - one of DER NET PEM\n");
-		BIO_printf(bio_err," -outform arg    output format - one of DER NET PEM\n");
+		BIO_printf(bio_err," -outform arg    output format - one of DER NET PEM JWK\n");
 		BIO_printf(bio_err," -in arg         input file\n");
 		BIO_printf(bio_err," -sgckey         Use IIS SGC key format\n");
 		BIO_printf(bio_err," -passin arg     input file pass phrase source\n");
@@ -422,6 +422,16 @@ bad:
 			i = i2b_PrivateKey_bio(out, pk);
 		EVP_PKEY_free(pk);
 #endif
+	} else if (outformat == FORMAT_JWK) {
+		if(pubout || pubin)
+			{
+			if (pubout == 2)
+		    		i=JWK_write_bio_RSAPublicKey(out,rsa);
+			else
+		    		i=JWK_write_bio_RSA_PUBKEY(out,rsa);
+			}
+		else i=JWK_write_bio_RSAPrivateKey(out,rsa,
+						enc,NULL,0,NULL,passout);
 	} else	{
 		BIO_printf(bio_err,"bad output format specified for outfile\n");
 		goto end;

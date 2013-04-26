@@ -59,6 +59,7 @@
 #include <string.h>
 #include "apps.h"
 #include <openssl/pem.h>
+#include <openssl/jwk.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
 
@@ -253,9 +254,17 @@ int MAIN(int argc, char **argv)
 			else
 				i2d_PrivateKey_bio(out, pkey);
 			}
+		else if (outformat == FORMAT_JWK)
+			{
+			if (pubout)
+				JWK_write_bio_PUBKEY(out,pkey);
+			else
+				JWK_write_bio_PrivateKey(out, pkey, cipher,
+							NULL, 0, NULL, passout);
+			}
 		else
 			{
-			BIO_printf(bio_err, "Bad format specified for key\n");
+			BIO_printf(bio_err, "pkey: Bad format specified for key\n");
 			goto end;
 			}
 
